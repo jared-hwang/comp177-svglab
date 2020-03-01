@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+	<script lang="javascript" src="js/d3.min.js"></script>
+	<style>
+		html, body {
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+	
+	<script>
+		var dimension = 500;
+
+		var svg = d3.select('body').append('svg')
+			.attr('width', dimension)
+			.attr('height', dimension)
+			.style('background-color', 'black');
+
+		// YOUR CODE SHOULD START HERE
+		/*
+		 * Name: Jared Hwang
+		 * Word: Redirect
+		 */
+
+		function pointInCircle(testX, testY, posX, posY, radius){
+			distance = Math.sqrt(Math.pow(testX-posX, 2) + Math.pow(testY-posY, 2))
+			if (distance <= radius){
+				return true
+			} else {
+				return false
+			}
+		}
+
+		var numSheep = 1000
+
+		svg.style('background-color', '#008000');
+
+		// Generate Sheep Circles
+		for (var i = 0; i < numSheep; i++){
+			svg.append("circle")
+				.attr('id', 'sheep')
+				.attr('cx', dimension*Math.random())
+				.attr('cy', dimension*Math.random())
+				.attr('r', dimension/100)
+				.attr('fill', '#e1e0d8')
+				// .attr('fill', '#'+Math.floor(Math.random()*16777215).toString(16))
+		}
+
+		// Generate Border Collie circle
+		svg.append("circle")
+			.attr('id', 'bordercollie')
+			.attr('cx', dimension/2)
+			.attr('cy', dimension/2)
+			.attr('r', dimension/50)
+			.attr('fill', '#343333')
+			.attr('cursor', 'none')
+
+		var run_radius = dimension/10;
+
+		// Reset sheep positions
+		svg.on("click", function(){
+			d3.selectAll('#sheep')
+				.transition()
+				.duration(500)
+				.attr('cy', function() {return dimension*Math.random()})
+				.attr('cx', function() {return dimension*Math.random()})
+		})
+
+		// Handle moving of border collie image and pushing of sheep
+		svg.on("mousemove", function(){
+			var mouse_x = event.clientX;
+			var mouse_y = event.clientY;
+
+			d3.select('#bordercollie')
+				.attr('cy', mouse_y)
+				.attr('cx', mouse_x)
+
+			d3.selectAll('#sheep')
+			  .transition()
+			  .duration(100)
+			  .attr('cy', function(){
+				curr = d3.select(this)
+				cx = curr.attr('cx')
+				cy = curr.attr('cy')
+				if (pointInCircle(cx, cy, mouse_x, mouse_y, run_radius)){ 
+					var dist_from_mouse = Math.sqrt(Math.pow(cx-mouse_x, 2) + Math.pow(cy-mouse_y, 2))
+					var ratio = run_radius / dist_from_mouse
+					if (cy <= mouse_y){
+						return mouse_y - (ratio * (mouse_y - cy))
+					} else { return mouse_y + (ratio * (cy - mouse_y))}
+				} else {
+					return curr.attr('cy');
+				}
+			  })
+			  .attr('cx', function(){
+				curr = d3.select(this)
+				cx = curr.attr('cx')
+				cy = curr.attr('cy')
+				if (pointInCircle(cx, cy, mouse_x, mouse_y, run_radius)){ 
+					var dist_from_mouse = Math.sqrt(Math.pow(cx-mouse_x, 2) + Math.pow(cy-mouse_y, 2))
+					var ratio = run_radius / dist_from_mouse
+					if (cx <= mouse_x){
+						return mouse_x - (ratio * (mouse_x - cx))
+					} else { return mouse_x + (ratio * (cx - mouse_x))}
+				} else {
+					return curr.attr('cx');
+				}
+			  })
+		});
+
+
+		// YOUR CODE SHOULD END HERE
+
+	</script>
+</body>
+</html>
